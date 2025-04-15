@@ -94,12 +94,7 @@ export default function SearchResults() {
     };
 
     // Only make API call if there's a search query
-    if (query) {
-      fetchApartments();
-    } else {
-      setApartments([]);
-      setLoading(false);
-    }
+    fetchApartments();
   }, [query, locations, minPrice, maxPrice, beds, baths, amenities]);
 
   // Get saved apartments from local storage
