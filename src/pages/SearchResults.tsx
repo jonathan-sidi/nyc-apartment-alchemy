@@ -32,7 +32,7 @@ export default function SearchResults() {
     const fetchApartments = async () => {
       try {
         // Build query URL with all filter parameters
-        let apiUrl = `http://localhost:8080/search?q=${encodeURIComponent(query)}`;
+        let apiUrl = `http://localelens-601258013537.us-central1.run.app/search?q=${encodeURIComponent(query)}`;
         
         // Add filter parameters
         if (locations.length > 0) {
