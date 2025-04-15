@@ -156,15 +156,15 @@ export function FilterBar({
         onValueChange={handleBedroomsChange}
       >
         <SelectTrigger className="w-[130px]">
-          <SelectValue placeholder="Bedrooms" />
+          <SelectValue placeholder="Beds" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="any">Any Bedrooms</SelectItem>
+          <SelectItem value="any">Any Beds</SelectItem>
           <SelectItem value="studio">Studio</SelectItem>
-          <SelectItem value="1">1 Bedroom</SelectItem>
-          <SelectItem value="2">2 Bedrooms</SelectItem>
-          <SelectItem value="3">3 Bedrooms</SelectItem>
-          <SelectItem value="4+">4+ Bedrooms</SelectItem>
+          <SelectItem value="1">1 Bed</SelectItem>
+          <SelectItem value="2">2 Beds</SelectItem>
+          <SelectItem value="3">3 Beds</SelectItem>
+          <SelectItem value="4+">4+ Beds</SelectItem>
         </SelectContent>
       </Select>
 
@@ -174,13 +174,13 @@ export function FilterBar({
         onValueChange={handleBathroomsChange}
       >
         <SelectTrigger className="w-[130px]">
-          <SelectValue placeholder="Bathrooms" />
+          <SelectValue placeholder="Baths" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="any">Any Bathrooms</SelectItem>
-          <SelectItem value="1">1+ Bathroom</SelectItem>
-          <SelectItem value="2">2+ Bathrooms</SelectItem>
-          <SelectItem value="3">3+ Bathrooms</SelectItem>
+          <SelectItem value="any">Any Baths</SelectItem>
+          <SelectItem value="1">1+ Bath</SelectItem>
+          <SelectItem value="2">2+ Baths</SelectItem>
+          <SelectItem value="3">3+ Baths</SelectItem>
         </SelectContent>
       </Select>
 

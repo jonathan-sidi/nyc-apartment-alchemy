@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 import { SearchBar } from "@/components/search/SearchBar";
 import { FilterBar } from "@/components/search/FilterBar";
 import { ApartmentGrid } from "@/components/apartment/ApartmentGrid";
 import { Apartment } from "@/types/apartment";
 
-// This is placeholder data - in production, this would come from your backend
+// Temporary fallback to mock data if API fails
 import { mockApartments } from "@/mock/apartments";
 
 export default function SearchResults() {
@@ -24,22 +25,84 @@ export default function SearchResults() {
   const baths = searchParams.get("baths") || "any";
   const amenities = searchParams.get("amenities")?.split(",") || [];
 
-  // This would be replaced with a real API call in production
+  // Fetch apartments from the backend
   useEffect(() => {
     setLoading(true);
     
-    // Simulate an API call
-    const timer = setTimeout(() => {
-      // In reality, this would be a call to your backend with the search parameters
-      // The backend would use the vector search model you mentioned
-      setApartments(mockApartments);
-      setLoading(false);
-    }, 1000);
+    const fetchApartments = async () => {
+      try {
+        // Build query URL with all filter parameters
+        let apiUrl = `http://localhost:8080/search?q=${encodeURIComponent(query)}`;
+        
+        // Add filter parameters
+        if (locations.length > 0) {
+          apiUrl += `&locations=${encodeURIComponent(locations.join(','))}`;
+        }
+        
+        apiUrl += `&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+        
+        if (beds !== "any") {
+          apiUrl += `&beds=${beds}`;
+        }
+        
+        if (baths !== "any") {
+          apiUrl += `&baths=${baths}`;
+        }
+        
+        if (amenities.length > 0) {
+          apiUrl += `&amenities=${encodeURIComponent(amenities.join(','))}`;
+        }
+        
+        const response = await fetch(apiUrl);
+        
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Transform API response to match our Apartment type
+        const transformedData = data.map((apt: any) => ({
+          id: apt.id.toString(),
+          title: apt.address,
+          description: "Apartment details...", // Backend doesn't return full description
+          price: apt.price,
+          location: {
+            address: apt.address,
+            borough: apt.address.split(',').pop()?.trim() || "NYC",
+            neighborhood: "",
+          },
+          bedrooms: apt.bedrooms,
+          bathrooms: apt.bathrooms,
+          squareFeet: 0, // Not provided by API
+          amenities: [], // Detail not included in response
+          images: apt.image_url ? [apt.image_url] : [], 
+          availableDate: new Date().toISOString(),
+          dateAdded: new Date().toISOString(),
+          semanticScore: apt.score,
+        }));
+        
+        setApartments(transformedData);
+      } catch (error) {
+        console.error("Error fetching apartments:", error);
+        toast.error("Failed to load search results. Displaying sample data.");
+        // Fallback to mock data if API fails
+        setApartments(mockApartments);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    // Only make API call if there's a search query
+    if (query) {
+      fetchApartments();
+    } else {
+      setApartments([]);
+      setLoading(false);
+    }
   }, [query, locations, minPrice, maxPrice, beds, baths, amenities]);
 
-  // This would be replaced with a real user auth check
+  // Get saved apartments from local storage
   useEffect(() => {
     // Get saved apartments from local storage as a placeholder
     // In production, this would come from your user database
