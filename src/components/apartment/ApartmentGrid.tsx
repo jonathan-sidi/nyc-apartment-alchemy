@@ -1,4 +1,3 @@
-
 import { ApartmentCard } from "./ApartmentCard";
 import { Apartment } from "@/types/apartment";
 
@@ -13,6 +12,9 @@ export function ApartmentGrid({
   savedApartments = [],
   onSaveApartment
 }: ApartmentGridProps) {
+  console.log("ApartmentGrid rendering with", apartments.length, "apartments");
+  console.log("ApartmentGrid data:", apartments);
+
   if (apartments.length === 0) {
     return (
       <div className="py-12 text-center">

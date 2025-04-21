@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { SearchBar } from "@/components/search/SearchBar";
 import { FilterBar } from "@/components/search/FilterBar";
 import { ApartmentGrid } from "@/components/apartment/ApartmentGrid";
@@ -12,8 +12,6 @@ import { mockApartments } from "@/mock/apartments";
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [apartments, setApartments] = useState<Apartment[]>([]);
-  const [loading, setLoading] = useState(true);
   const [savedApartments, setSavedApartments] = useState<string[]>([]);
 
   // Get search parameters
@@ -25,14 +23,14 @@ export default function SearchResults() {
   const baths = searchParams.get("baths") || "any";
   const amenities = searchParams.get("amenities")?.split(",") || [];
 
-  // Fetch apartments from the backend
-  useEffect(() => {
-    setLoading(true);
-    
-    const fetchApartments = async () => {
+  // Use React Query to fetch apartments
+  const { data: apartments = [], isLoading } = useQuery({
+    queryKey: ['apartments', query, locations, minPrice, maxPrice, beds, baths, amenities],
+    queryFn: async () => {
+      console.log("Search params changed, Query:", query);
       try {
         // Build query URL with all filter parameters
-        let apiUrl = `http://localelens-601258013537.us-central1.run.app/search?q=${encodeURIComponent(query)}`;
+        let apiUrl = `https://localelens-601258013537.us-central1.run.app/search?q=${encodeURIComponent(query)}`;
         
         // Add filter parameters
         if (locations.length > 0) {
@@ -53,6 +51,7 @@ export default function SearchResults() {
           apiUrl += `&amenities=${encodeURIComponent(amenities.join(','))}`;
         }
         
+        console.log("Fetching from API URL:", apiUrl);
         const response = await fetch(apiUrl);
         
         if (!response.ok) {
@@ -60,42 +59,41 @@ export default function SearchResults() {
         }
         
         const data = await response.json();
+        console.log("Raw API response:", data);
         
         // Transform API response to match our Apartment type
         const transformedData = data.map((apt: any) => ({
           id: apt.id.toString(),
-          title: apt.address,
+          title: apt.address || "Apartment",
           description: "Apartment details...", // Backend doesn't return full description
-          price: apt.price,
+          price: apt.price || 0,
           location: {
-            address: apt.address,
-            borough: apt.address.split(',').pop()?.trim() || "NYC",
+            address: apt.address || "New York",
+            borough: (apt.address?.split(',').pop()?.trim()) || "NYC",
             neighborhood: "",
           },
-          bedrooms: apt.bedrooms,
-          bathrooms: apt.bathrooms,
+          bedrooms: apt.bedrooms ?? 0,
+          bathrooms: apt.bathrooms ?? 0,
           squareFeet: 0, // Not provided by API
           amenities: [], // Detail not included in response
           images: apt.image_url ? [apt.image_url] : [], 
           availableDate: new Date().toISOString(),
           dateAdded: new Date().toISOString(),
-          semanticScore: apt.score,
+          semanticScore: apt.score || 0,
         }));
         
-        setApartments(transformedData);
+        console.log("Transformed apartment data:", transformedData);
+        return transformedData;
       } catch (error) {
         console.error("Error fetching apartments:", error);
         toast.error("Failed to load search results. Displaying sample data.");
         // Fallback to mock data if API fails
-        setApartments(mockApartments);
-      } finally {
-        setLoading(false);
+        return mockApartments;
       }
-    };
-
-    // Only make API call if there's a search query
-    fetchApartments();
-  }, [query, locations, minPrice, maxPrice, beds, baths, amenities]);
+    },
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+  });
 
   // Get saved apartments from local storage
   useEffect(() => {
@@ -186,7 +184,7 @@ export default function SearchResults() {
           </p>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="py-12 flex justify-center">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
           </div>

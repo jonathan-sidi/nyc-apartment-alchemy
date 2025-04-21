@@ -1,4 +1,3 @@
-
 import { Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -16,6 +15,8 @@ interface ApartmentCardProps {
 export function ApartmentCard({ apartment, onSave, isSaved = false }: ApartmentCardProps) {
   const { id, title, price, bedrooms, bathrooms, location, images, amenities } = apartment;
   
+  console.log("Rendering ApartmentCard for:", id, title);
+
   const handleSaveClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -35,9 +36,12 @@ export function ApartmentCard({ apartment, onSave, isSaved = false }: ApartmentC
         <div className="relative">
           <AspectRatio ratio={4/3}>
             <img 
-              src={images[0] || '/placeholder.svg'} 
+              src={images && images.length > 0 ? images[0] : '/placeholder.svg'} 
               alt={title} 
               className="object-cover w-full h-full"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.svg';
+              }}
             />
           </AspectRatio>
           <Button 
@@ -58,7 +62,7 @@ export function ApartmentCard({ apartment, onSave, isSaved = false }: ApartmentC
         <CardContent className="p-4">
           <h3 className="font-heading font-semibold text-lg line-clamp-1 mb-1">{title}</h3>
           <p className="text-muted-foreground text-sm line-clamp-1 mb-2">
-            {location.neighborhood}, {location.borough}
+            {location.neighborhood ? `${location.neighborhood}, ` : ''}{location.borough || 'NYC'}
           </p>
           <div className="flex items-center space-x-2 text-sm mb-3">
             <span>{formatBedrooms(bedrooms)}</span>
@@ -67,16 +71,20 @@ export function ApartmentCard({ apartment, onSave, isSaved = false }: ApartmentC
           </div>
           
           <div className="flex flex-wrap gap-1 mt-2">
-            {amenities.slice(0, 3).map((amenity, index) => (
-              <Badge key={index} variant="outline" className="bg-secondary text-xs">
-                {amenity}
-              </Badge>
-            ))}
-            {amenities.length > 3 && (
-              <Badge variant="outline" className="bg-secondary text-xs">
-                +{amenities.length - 3} more
-              </Badge>
-            )}
+            {amenities && amenities.length > 0 ? (
+              <>
+                {amenities.slice(0, 3).map((amenity, index) => (
+                  <Badge key={index} variant="outline" className="bg-secondary text-xs">
+                    {amenity}
+                  </Badge>
+                ))}
+                {amenities.length > 3 && (
+                  <Badge variant="outline" className="bg-secondary text-xs">
+                    +{amenities.length - 3} more
+                  </Badge>
+                )}
+              </>
+            ) : null}
           </div>
         </CardContent>
       </Link>
