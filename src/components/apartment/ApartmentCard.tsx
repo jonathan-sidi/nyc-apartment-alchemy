@@ -32,7 +32,12 @@ export function ApartmentCard({ apartment, onSave, isSaved = false }: ApartmentC
 
   return (
     <Card className="h-full overflow-hidden hover:shadow-md transition-shadow duration-200">
-      <Link to={`/apartments/${id}`} className="block h-full">
+      <a
+        href={`https://streeteasy.com/rental/${id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block h-full"
+      >
         <div className="relative">
           <AspectRatio ratio={4/3}>
             <img 
