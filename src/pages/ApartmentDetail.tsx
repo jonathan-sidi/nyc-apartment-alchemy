@@ -110,6 +110,15 @@ export default function ApartmentDetail() {
           </div>
           <span className="text-2xl font-semibold text-accent">${apartment.price.toLocaleString()}/month</span>
         </div>
+        <a
+          href={`https://streeteasy.com/rental/${apartment.id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Button variant="secondary" className="mt-4">
+            View on StreetEasy
+          </Button>
+        </a>
       </div>
 
       {/* Image gallery */}
