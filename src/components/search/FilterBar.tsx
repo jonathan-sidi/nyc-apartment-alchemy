@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "@mui/material/Slider";
 
 interface FilterBarProps {
   onFilterChange?: (filters: FilterState) => void;
@@ -53,7 +53,7 @@ export function FilterBar({
 }: FilterBarProps) {
   const [filters, setFilters] = useState<FilterState>({
     location: initialFilters?.location || [],
-    priceRange: initialFilters?.priceRange || [0, 10000],
+    priceRange: initialFilters?.priceRange || [0, 15000],
     beds: initialFilters?.beds || "any",
     baths: initialFilters?.baths || "any",
     amenities: initialFilters?.amenities || []
@@ -139,11 +139,12 @@ export function FilterBar({
                 <span>${filters.priceRange[0].toLocaleString()}</span>
                 <span>${filters.priceRange[1].toLocaleString()}</span>
               </div>
-              <Slider 
-                defaultValue={[filters.priceRange[0], filters.priceRange[1]]}
-                max={10000}
+              <Slider
+                value={filters.priceRange}
                 step={100}
-                onValueChange={handlePriceChange}
+                max={15000}
+                onChange={handlePriceChange}
+                valueLabelDisplay="auto"
               />
             </div>
           </div>
